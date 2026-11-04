@@ -1,0 +1,39 @@
+[
+  {
+    "id": "latency",
+    "title": "Forecast API — latency spike",
+    "subtitle": "High p95 latency after traffic surge",
+    "alert": {
+      "status": "firing", "labels": {"alertname": "ForecastAPIHighLatency", "service": "forecast-api", "namespace": "production", "severity": "critical"},
+      "annotations": {"summary": "Forecast API p95 latency > 1.5 s for 10m", "description": "Synthetic alert: API request latency rose with errors and resource pressure."}
+    },
+    "snapshot": {
+      "p95_latency_ms": 1850, "baseline_p95_ms": 240, "http_5xx_pct": 7.8,
+      "cpu_util_pct": 93, "ready_replicas": 3, "desired_replicas": 6, "hpa_at_max": true,
+      "recent_deployment": "No release in the past 2h"
+    },
+    "events": ["Readiness probe failed: HTTP 503", "HPA reached configured maximum replicas", "CPU throttling detected in some pods"]
+  },
+  {
+    "id": "crashloop",
+    "title": "Data ingestion — crash loop",
+    "subtitle": "Worker restart storm after release",
+    "alert": {
+      "status": "firing", "labels": {"alertname": "IngestWorkerCrashLoopBackOff", "service": "ingest-worker", "namespace": "data-pipeline", "severity": "critical"},
+      "annotations": {"summary": "CrashLoopBackOff: ingest-worker", "description": "Synthetic alert: ingestion worker pods restart after release."}
+    },
+    "snapshot": {"restart_count_15m": 14, "memory_util_pct": 99, "pod_memory_limit_mib": 512, "ready_replicas": 1, "desired_replicas": 4, "recent_deployment": "ingest-worker:v2.4 deployed 12m ago"},
+    "events": ["Last termination reason: OOMKilled", "Back-off restarting failed container", "Readiness probe failed"]
+  },
+  {
+    "id": "upstream",
+    "title": "Tile API — 503 errors",
+    "subtitle": "Possible dependency degradation",
+    "alert": {
+      "status": "firing", "labels": {"alertname": "MapTilesHigh503Rate", "service": "map-tiles", "namespace": "production", "severity": "warning"},
+      "annotations": {"summary": "Map tiles API 503 error rate > 5%", "description": "Synthetic alert: gateway response errors and upstream timeouts."}
+    },
+    "snapshot": {"http_503_pct": 12.4, "app_cpu_pct": 31, "ready_replicas": 5, "desired_replicas": 5, "dependency_p95_latency_ms": 3100, "recent_deployment": "No deploy in past 6h"},
+    "events": ["Upstream connection timeout", "Gateway 503 responses increased", "Service readiness stable"]
+  }
+]

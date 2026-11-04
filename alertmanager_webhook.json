@@ -1,0 +1,12 @@
+{
+  "receiver":"incidentlens",
+  "status":"firing",
+  "alerts":[
+    {
+      "status":"firing",
+      "labels":{"alertname":"ForecastAPILatency", "service":"forecast-api", "namespace":"production", "severity":"warning"},
+      "annotations":{"summary":"Synthetic Alertmanager test: high latency", "description":"Testing the alert ingestion integration."},
+      "startsAt":"2026-10-25T12:00:00Z"
+    }
+  ]
+}
