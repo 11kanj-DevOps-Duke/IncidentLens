@@ -1,0 +1,42 @@
+[
+  {
+    "id": "k8s_oom",
+    "name": "Container memory pressure",
+    "patterns": ["OOMKilled", "out of memory", "memorypressure", "memory limit"],
+    "hypothesis": "A container may be exceeding its memory limit or the node may be under memory pressure.",
+    "checks": ["kubectl describe pod <pod> -n <namespace>", "kubectl top pods -n <namespace>", "kubectl logs <pod> -n <namespace> --previous"],
+    "mitigation": "Consider rolling back the recent release or adjusting memory requests and limits after confirming the cause."
+  },
+  {
+    "id": "k8s_readiness",
+    "name": "Readiness or insufficient healthy replicas",
+    "patterns": ["readiness", "unready", "failedhealthcheck", "unhealthy target", "no healthy targets"],
+    "hypothesis": "Traffic may be reaching a service with too few ready endpoints.",
+    "checks": ["kubectl get pods -n <namespace> -o wide", "kubectl get endpointslices -n <namespace>", "kubectl describe deployment <service> -n <namespace>"],
+    "mitigation": "Inspect health probes, release status and capacity before considering a rollback or scaling action."
+  },
+  {
+    "id": "k8s_capacity",
+    "name": "CPU / autoscaling capacity",
+    "patterns": ["cpu", "hpa", "capacity", "throttl", "scaling"],
+    "hypothesis": "A scaling limit or resource bottleneck may be contributing to latency or errors.",
+    "checks": ["kubectl top nodes", "kubectl top pods -n <namespace>", "kubectl describe hpa -n <namespace>"],
+    "mitigation": "Review HPA limits, pod requests and node capacity; scale only after validating the bottleneck."
+  },
+  {
+    "id": "k8s_crash",
+    "name": "Container restart loop",
+    "patterns": ["CrashLoopBackOff", "back-off restarting", "restarts"],
+    "hypothesis": "The container may be exiting repeatedly due to application, configuration or resource failures.",
+    "checks": ["kubectl describe pod <pod> -n <namespace>", "kubectl logs <pod> -n <namespace> --previous", "kubectl rollout history deployment/<service> -n <namespace>"],
+    "mitigation": "Compare with the last known-good deployment and consider a controlled rollback after approval."
+  },
+  {
+    "id": "dependency_errors",
+    "name": "Downstream dependency failure",
+    "patterns": ["502", "503", "dependency", "upstream", "timeout", "connection refused"],
+    "hypothesis": "An upstream dependency or network path may be failing; the application itself may still be healthy.",
+    "checks": ["Check ingress/load-balancer target health", "Check service EndpointSlices and DNS resolution", "Compare application error logs with dependency latency"],
+    "mitigation": "Verify upstream service health, retry/circuit-breaker behavior and consider traffic shift if a healthy fallback exists."
+  }
+]
